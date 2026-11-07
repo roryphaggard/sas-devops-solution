@@ -38,13 +38,6 @@ scripts are perfectly acceptable.*
 
 Choose a few objectives that align with your interests and expertise:
 
-### 1. **Input Management**
-
-Design how customer purchase events and metadata enter the pipeline. Define input
-validation/normalization rules, idempotency to prevent duplicates, and secure
-PII handling. Specify error handling, retry/backoff, and dead-letter routing for
-malformed payloads.
-
 ### 2. **Data Deployment to Web Servers**
 
 Design a mechanism for deploying customer-specific data (company name, motto) to
@@ -52,52 +45,17 @@ backend web servers running in Kubernetes. Consider how to package data into Con
 or Secrets, update pod configurations, and manage rolling deployments across multiple
 web server pods without downtime.
 
-### 3. **Data Management & Storage**
-
-Design how to store and retrieve customer information (company names, mottos,
-preferences). Consider databases, data validation, and data security.
-
-### 4. **Scalable Web Serving**
-
-Implement a Kubernetes-based web serving solution that can handle personalized pages
-for 10-100+ customers. Consider pod autoscaling, service mesh configurations, ingress
-controllers, and how to efficiently route traffic to customer-specific deployments.
-
 ### 5. **Pipeline Orchestration**
 
 Design the workflow that coordinates all onboarding steps from purchase completion
 to live customer page. Consider using tools like Github Workflows or Github Actions.
 Along with task queues, error handling, and process monitoring.
 
-### 6. **Security & Access Control**
-
-Address security concerns for customer data and personalized pages. Consider
-authentication, authorization, data encryption, and secure customer isolation.
-
-### 7. **Monitoring & Health Checks**
-
-Implement monitoring for the onboarding pipeline and customer pages running in
-Kubernetes. Consider Prometheus metrics, Grafana dashboards, pod health checks,
-service monitoring, and alerting for failed onboardings using tools like AlertManager.
-
 ### 8. **Configuration Management**
 
 Design a system for managing customer-specific configurations in Kubernetes using
 ConfigMaps, Secrets, and custom resources. Consider Helm charts for templating,
 Kustomize overlays, and feature flags that might vary per customer tier or package.
-
-### 9. **Infrastructure as Code**
-
-Design Kubernetes infrastructure provisioning using tools like Terraform, Pulumi,
-or GitOps with ArgoCD/Flux. Consider cluster setup, namespace management, RBAC
-policies, and how to scale infrastructure for hosting customer pages and running
-onboarding pipelines.
-
-### 10. **Error Handling & Recovery**
-
-Implement robust error handling for failed onboardings, partial completions, and
-recovery mechanisms. Consider retry logic, manual intervention processes, and
-customer communication.
 
 ## Your Deliverable
 
@@ -118,28 +76,26 @@ welcome!), or planning notes.*
 ### Planning Notes
 
 ```text
-Add your thoughts here...
+Primary Objectives:
+02: Data Deployment to Web Servers
+  - Populate pipeline variables with data pulled via API from CRM at runtime
+  - Default to templated ConfigMaps, configuration customizable based on CRM data
+  - Restart resources with rollout, post verification of correct configuration for new entries
+  - Separate company identifier from customer display name (i.e. generate a cryptographic UUID to ID customer to prevent namespace collisions as well as to anonymize customer name in URL generation)
 
-Customer Data Flow:
-- How does customer purchase data reach the pipeline?
-- Where do we store company name and motto?
-- 
+05: Pipeline Orchestration
+  - Trigger build from invoice completion in CRM via webhook
+  - Provision necessary git repo(s), database, application pods, and ingress configuration(s) at runtime
+  - Apply a customizable application configuration from Helm chart based on pipeline variables
+  - Scale number of available process runners inline with demand to keep wait time for new builds to a minimum while also keeping total concurrent compute resources to a minimum
 
-Pipeline Trigger Ideas:
-- API webhook from purchase system?
-- Queue-based processing?
-- 
-
-Technology Choices:
-- Database for customer data?
-- Pipeline orchestration tool?
-- 
-
-Challenges to Address:
-- What if onboarding fails mid-process?
-- How to handle duplicate company names?
-- 
-
+10: Error Handling & Recovery
+  - Verbose logging of error messages
+  - Errors for incomplete data pulls from CRM alert both Ops and relevant Sales Engineer(s); limit inputs in CRM to pulldown menus where possible and require fields when necessary
+  - Retry logic that works based on errors (e.g. backoff/retry for errors that indicate temporary failures (401, 503, 504, etc.), ask for operator verification on non-temporary failures (403, 500, 502, etc.))
+  - Use pipeline orchestration to track each stage of deployment and automatically retry failures, while ignoring successful completions
+  - Trigger alerts for repeated failures requiring manual intervention
+  - Successful completion triggers customer alert prompting their verification of correct configuration
 ```
 
 ### Architecture Sketches

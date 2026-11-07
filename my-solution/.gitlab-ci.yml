@@ -1,0 +1,22 @@
+stages:
+  - build
+  - test
+  - deploy
+
+build-job:
+  stage: build
+  script:
+    - echo "Building application!"
+    - ./my-solution/scripts/init-customer.py
+
+test-job:
+  stage: test
+  script:
+    - echo "Verifying application!"
+    - ./my-solution/scripts/verify-customer.py
+
+deploy-job:
+  stage: deploy
+  script:
+    - echo "Deploying application!"
+    - ./my-solution/scripts/deploy-customer.py
