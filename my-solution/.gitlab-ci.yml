@@ -47,6 +47,7 @@ deploy-job:
       --create-namespace \
       --version $PROD_VERSION
     - kubectl apply -f http-payload.yaml
+    - kubectl rollout restart deployment --selector=app=nginx
     - ./scripts/alert-customer.py
   retry:
     max: 3
