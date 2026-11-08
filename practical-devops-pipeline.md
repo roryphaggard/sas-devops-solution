@@ -134,7 +134,7 @@ Pipeline:
     - Retry logic that works based on errors (e.g. backoff/retry for errors that indicate temporary failures (401, 503, 504, etc.), ask for operator verification on non-temporary failures (403, 500, 502, etc.))
     - Use pipeline orchestration to track each stage of deployment and automatically retry failures, while ignoring successful completions
     
-- Restart resources with rollout, post verification of correct configuration for new entries
+- Restart resources, as necessary, with rollout, post verification of correct configuration for new entries
     - Successful completion triggers customer alert prompting their verification of correct configuration
     - Leverage CRM API for customer communications
 
