@@ -3,7 +3,7 @@ from simple_salesforce import Salesforce
 import sys
 import json
 import yaml
-import retry
+from retrying import retry
 from kubernetes import config, dynamic
 from kubernetes.client import api_client
 
@@ -27,6 +27,7 @@ def get_status_code():
       print("Error retrieving data from CRM:", statusMessage)
       exit(1)
 
+get_status_code()
 customerMotto = customerData["customer_motto"]
 
 with open("customer_data.json","w") as json_file:
