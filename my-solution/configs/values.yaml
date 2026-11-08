@@ -5,12 +5,14 @@ runnerToken: "YOUR_RUNNER_AUTHENTICATION_TOKEN"
 rbac:
   create: true
 replicas: 2
+concurrent: 8
 runners:
   privileged: true
   namespace: gitlab-runner
   image: ubuntu:22.04
   tags: "kubernetes,docker"
   config: |
+    concurrent = 8
     [[runners]]
       [runners.kubernetes]
         namespace = "gitlab-runner"
@@ -37,6 +39,7 @@ runners:
         # Tolerations for dedicated CI nodes
         [runners.kubernetes.node_tolerations]
           "ci" = "NoSchedule"
+
 metrics:
   enabled: true
   portName: metrics
