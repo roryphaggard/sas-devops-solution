@@ -43,7 +43,8 @@ configmapManifest = {
     "metadata": {
         "name": configmapName,
         "labels": {
-            "customerName": "customerUUID",
+            customerName: customerUUID,
+            "app": "nginx",
         },
     },
     "data": {

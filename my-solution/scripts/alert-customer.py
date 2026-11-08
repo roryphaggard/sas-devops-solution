@@ -7,7 +7,7 @@ with open("customer_data.json", "r") as file:
 
 recipient = customerData["customer_name"]
 uuid = customerData["Id"]
-url = ("https://example.com/u/" + uuid)
-message = ("Your new webapp is now available at: " + url)
+url = print("https://example.com/u/" + uuid)
+message = print("Your new webapp is now available at: " + url)
 
 sf.Communicate(recipient,uuid,message)
