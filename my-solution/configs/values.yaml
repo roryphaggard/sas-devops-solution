@@ -1,0 +1,48 @@
+# values.yaml for GitLab Runner Helm chart
+gitlabUrl: https://gitlab.example.com/
+runnerToken: "YOUR_RUNNER_AUTHENTICATION_TOKEN"
+
+rbac:
+  create: true
+replicas: 2
+runners:
+  privileged: true
+  namespace: gitlab-runner
+  image: ubuntu:22.04
+  tags: "kubernetes,docker"
+  config: |
+    [[runners]]
+      [runners.kubernetes]
+        namespace = "gitlab-runner"
+        image = "ubuntu:22.04"
+        privileged = true
+
+        # Resource limits for job pods
+        cpu_limit = "2"
+        memory_limit = "4Gi"
+        cpu_request = "500m"
+        memory_request = "1Gi"
+
+        # Service account for job pods
+        service_account = "gitlab-runner"
+
+        # Pod labels for identification
+        [runners.kubernetes.pod_labels]
+          "app" = "gitlab-ci-job"
+
+        # Node selector for job pods
+        [runners.kubernetes.node_selector]
+          "workload" = "ci"
+
+        # Tolerations for dedicated CI nodes
+        [runners.kubernetes.node_tolerations]
+          "ci" = "NoSchedule"
+metrics:
+  enabled: true
+  portName: metrics
+  port: 9252
+  serviceMonitor:
+    enabled: true
+
+service:
+  enabled: true

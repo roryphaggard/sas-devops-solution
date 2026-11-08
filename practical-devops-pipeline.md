@@ -87,7 +87,7 @@ Primary Objectives:
   - Trigger build from invoice completion in CRM via webhook
   - Provision necessary git repo(s), database, application pods, and ingress configuration(s) at runtime
   - Apply a customizable application configuration from Helm chart based on pipeline variables
-  - Scale number of available process runners inline with demand to keep wait time for new builds to a minimum while also keeping total concurrent compute resources to a minimum
+  - Scale number of available process runners in line with demand to keep wait time for new builds to a minimum while also keeping total concurrent compute resources to a minimum
 
 10: Error Handling & Recovery
   - Verbose logging of error messages
@@ -96,18 +96,18 @@ Primary Objectives:
   - Use pipeline orchestration to track each stage of deployment and automatically retry failures, while ignoring successful completions
   - Trigger alerts for repeated failures requiring manual intervention
   - Successful completion triggers customer alert prompting their verification of correct configuration
+
 ```
 
 ### Architecture Sketches
 
 ```text
-Draw your customer onboarding flow here...
 
 Purchase -> Pipeline -> Personalized Page
 
 Customer Journey:
 1. Customer completes purchase
-2. System captures company name + motto  
+2. System captures necessary information
 3. Pipeline generates personalized page
 4. Customer sees "Welcome [Company], [Motto]" page
 
@@ -116,16 +116,27 @@ Customer Journey:
 ### Implementation Ideas
 
 ```text
-Example pipeline steps:
-1. Receive purchase webhook
-2. Extract customer data (company name, motto)
-3. Generate personalized HTML page
-4. Deploy/serve page at customer-specific URL
-5. Send welcome email with link
+Pipeline:
+- Trigger build from invoice completion in CRM via webhook
 
-Data structure ideas:
-- Customer table: id, company_name, motto, created_at
-- Page template: "Welcome {{company_name}}! {{motto}}"
+- Separate company identifier from customer display name (i.e. generate a cryptographic UUID to ID customer to prevent namespace collisions as well as to anonymize customer name in URL generation)
+    - CRM generates and stores Customer UUID at invoice completion
+
+- Populate pipeline variables with data pushed via API webhook from CRM at runtime
+    - This is done via URL construction for POST request to the pipeline API
+    - Initially populates a friendly name and a UUID for the Customer
+
+- Provision necessary git repo(s), database, application pods, and ingress configuration(s) at runtime
+
+- Default to templated ConfigMaps and such; configuration customizable based on CRM data and editable from the Customer's side
+    - Apply a customizable application configuration based on pipeline variables
+    - Errors for incomplete data pulls from CRM alert both Ops and relevant Sales Engineer(s); limit inputs in CRM to pulldown menus where possible and require fields when necessary
+    - Retry logic that works based on errors (e.g. backoff/retry for errors that indicate temporary failures (401, 503, 504, etc.), ask for operator verification on non-temporary failures (403, 500, 502, etc.))
+    - Use pipeline orchestration to track each stage of deployment and automatically retry failures, while ignoring successful completions
+    
+- Restart resources with rollout, post verification of correct configuration for new entries
+    - Successful completion triggers customer alert prompting their verification of correct configuration
+    - Leverage CRM API for customer communications
 
 ```
 
